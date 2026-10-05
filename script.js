@@ -1,10 +1,25 @@
 const STORAGE_KEY = 'todo_tasks';
 
-let tasks = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+// Invalid or unavailable browser storage should not stop the page.
+let tasks = [];
+let storageWarning = '';
+try {
+  const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  if (Array.isArray(saved)) {
+    tasks = saved.filter(task => task && typeof task.id === 'string' &&
+      typeof task.text === 'string' && typeof task.completed === 'boolean');
+  }
+} catch (error) {
+  storageWarning = 'Saved tasks could not be loaded. You can still use this page.';
+}
 let activeFilter = 'all';
 
 function saveTasks() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+  } catch (error) {
+    storageWarning = 'Tasks are available on this page, but could not be saved.';
+  }
 }
 
 function generateId() {
@@ -26,7 +41,7 @@ function toggleTask(id) {
 }
 
 function deleteTask(id) {
-  const item = document.querySelector(`[data-id="${id}"]`);
+  const item = Array.from(document.querySelectorAll('[data-id]')).find(el => el.dataset.id === id);
   if (item) {
     item.classList.add('task-item--removing');
     setTimeout(() => {
@@ -68,16 +83,16 @@ function renderTaskList() {
   return `
     <ul class="task-list">
       ${filtered.map(task => `
-        <li class="task-item" data-id="${task.id}">
+        <li class="task-item" data-id="${escapeHtml(task.id)}">
           <div
             class="task-item__checkbox ${task.completed ? 'task-item__checkbox--checked' : ''}"
             role="checkbox"
             aria-checked="${task.completed}"
             tabindex="0"
-            data-toggle="${task.id}"
+            data-toggle="${escapeHtml(task.id)}"
           ></div>
           <span class="task-item__text ${task.completed ? 'task-item__text--done' : ''}">${escapeHtml(task.text)}</span>
-          <button class="task-item__delete" data-delete="${task.id}" aria-label="Delete task">×</button>
+          <button class="task-item__delete" data-delete="${escapeHtml(task.id)}" aria-label="Delete task">×</button>
         </li>
       `).join('')}
     </ul>
@@ -96,10 +111,12 @@ function render() {
       <p class="app-header__subtitle">Stay focused. Ship what matters.</p>
     </header>
 
+    ${storageWarning ? `<p role="status">${escapeHtml(storageWarning)}</p>` : ''}
     <div class="todo-card">
       <div class="input-row">
         <input
           id="task-input"
+          aria-label="New task"
           class="input-row__field"
           type="text"
           placeholder="What needs to be done?"
@@ -137,14 +154,13 @@ function bindEvents() {
 
   addBtn.addEventListener('click', () => {
     addTask(input.value);
-    input.value = '';
-    input.focus();
+    document.getElementById('task-input').focus();
   });
 
   input.addEventListener('keydown', e => {
     if (e.key === 'Enter') {
       addTask(input.value);
-      input.value = '';
+      document.getElementById('task-input').focus();
     }
   });
 
@@ -160,7 +176,10 @@ function bindEvents() {
   document.querySelectorAll('[data-toggle]').forEach(el => {
     el.addEventListener('click', () => toggleTask(el.dataset.toggle));
     el.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ' ') toggleTask(el.dataset.toggle);
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleTask(el.dataset.toggle);
+      }
     });
   });
 
