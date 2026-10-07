@@ -1,20 +1,31 @@
-# To-Do List
+# JavaScript To-Do List
 
-A task list with add, complete, delete and filter actions. Tasks are saved using localStorage.
+A browser-based task list built with HTML, CSS and JavaScript.
 
-## Technologies
+[Try the live demo](https://adham2005-h.github.io/todo-list/)
 
-HTML, CSS, JavaScript.
+## Features
+
+- Add tasks and mark them complete.
+- Filter all, active and completed tasks.
+- Delete tasks or clear completed items.
+- Save tasks in browser localStorage.
 
 ## Run locally
 
-1. Download or clone the repository.
-2. Open `index.html` in a browser.
-3. Keep the existing image and stylesheet folders in place.
+Open `index.html` in a browser with `script.js` and `style.css` alongside it.
 
-## Project scope
+## Project structure
 
-Tasks stay in the same browser. Clearing browser storage removes the saved list.
+`index.html` loads the app; `script.js` renders the interface and handles tasks; `style.css` defines the layout.
+
+## What I practiced
+
+DOM rendering, events, array operations and browser storage.
+
+## Scope
+
+Tasks belong to the current browser. There is no account, cloud sync or server database.
 
 ## Author
 
