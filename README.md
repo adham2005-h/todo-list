@@ -4,6 +4,8 @@ A browser-based task list built with HTML, CSS and JavaScript.
 
 [Try the live demo](https://adham2005-h.github.io/todo-list/)
 
+![Project preview](docs/preview.png)
+
 ## Features
 
 - Add tasks and mark them complete.
